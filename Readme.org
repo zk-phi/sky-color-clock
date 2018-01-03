@@ -1,0 +1,21 @@
+* sky-color-clock.el
+
+A clock widget for modeline with sky colors.
+
+空の色を反映したモードライン用時計
+
+(This is a work in progress)
+
+** Usage
+
+Load and initialize sky-color-clock with your location's latitude.
+
+: (require 'sky-color-clock)
+: (sky-color-clock-initialize 35) ; tokyo
+
+Then function =sky-color-clock= will return a propertized string.
+
+** Customization
+
+- =sky-color-clock-format=
+- =sky-color-enable-moonphase-emoji=
