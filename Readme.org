@@ -1,10 +1,20 @@
 * sky-color-clock.el
 
-A clock widget for modeline with sky colors.
+A clock widget for modeline with sky colors and moonphase icon at that time.
 
-空の色を反映したモードライン用時計
+その時間の空の色・月齢を反映したモードライン用時計
 
 (This is a work in progress)
+
+** Screenshots
+
+modeline
+
+[[file:./modeline_sample.png]]
+
+sky color samples
+
+[[file:./colors.png]]
 
 ** Usage
 
@@ -17,5 +27,5 @@ Then function =sky-color-clock= will return a propertized string.
 
 ** Customization
 
-- =sky-color-clock-format=
-- =sky-color-enable-moonphase-emoji=
+- =sky-color-clock-format= ... String
+- =sky-color-enable-moonphase-emoji= ... Boolean
