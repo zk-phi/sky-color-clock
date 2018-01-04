@@ -79,7 +79,7 @@ set (no black/white nights) in a day."
   (switch-to-buffer (get-buffer-create "*sky-color-clock*"))
   (erase-buffer)
   (dotimes (hour 23)
-    (dolist (min '(0 15 30 45))
+    (dolist (min '(0 10 20 30 40 50))
       (insert (sky-color-clock (encode-time 0 min hour day month year)) "\n"))))
 
 ;; ---- emoji moonphase
