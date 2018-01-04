@@ -9,7 +9,6 @@
 ;; TODO: weather and temperature
 ;; - lower saturation and less contrast for cloudy days ?
 ;; - gradiant with temperature (like Solar weather app)
-;; - add purple "magic hour" color
 
 ;; simpler than solar.el, lunar.el
 
