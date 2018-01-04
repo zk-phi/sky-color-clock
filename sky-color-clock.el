@@ -76,6 +76,14 @@ set (no black/white nights) in a day."
            (apply 'color-hsl-to-rgb
                   (color-lighten-hsl h s l (if (> l 0.5) -60 50))))))
 
+(defun sky-color-clock-preview (year month day)
+  (interactive (list (read-number "year: ") (read-number "month: ") (read-number "day: ")))
+  (switch-to-buffer (get-buffer-create "*sky-color-clock*"))
+  (erase-buffer)
+  (dotimes (hour 23)
+    (dolist (min '(0 15 30 45))
+      (insert (sky-color-clock (encode-time 0 min hour day month year)) "\n"))))
+
 ;; ---- emoji moonphase
 
 (defconst sky-color-clock--newmoon 6.8576
