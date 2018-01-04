@@ -50,23 +50,23 @@ set (no black/white nights) in a day."
     (let ((time (+ (/ (+ (/ sec 60.0) min) 60.0) hour))
           (rise sky-color-clock--sunrise)
           (set sky-color-clock--sunset)
-          (daytime (- sky-color-clock--daytime-length 2.5)))
+          (daytime (- sky-color-clock--daytime-length 2)))
       (cond
-       ;; sunrise colors -> #111111 #4d548a #c486b1 #ee88a0 #ff7d75 #f4eeef
-       ((< time (- rise 2.5)) "#111111")
-       ((< time (- rise 2))   (sky-color-clock--blend-colors "#4d548a" "#111111" (/ (- rise 2 time) 0.5)))
-       ((< time (- rise 1.5)) (sky-color-clock--blend-colors "#c486b1" "#4d548a" (/ (- rise 1.5 time) 0.5)))
-       ((< time (- rise 1))   (sky-color-clock--blend-colors "#ee88a0" "#c486b1" (/ (- rise 1 time) 0.5)))
-       ((< time (- rise 0.5)) (sky-color-clock--blend-colors "#ff7d75" "#ee88a0" (/ (- rise 0.5 time) 0.5)))
-       ((< time rise)         (sky-color-clock--blend-colors "#f4eeef" "#ff7d75" (/ (- rise time) 0.5)))
+       ;; sunrise colors -> #111111 #4d548a #c486b1 #ee88a0 #ff7d75 | #f4eeef
+       ((< time (- rise 2.0)) "#111111")
+       ((< time (- rise 1.5)) (sky-color-clock--blend-colors "#4d548a" "#111111" (/ (- rise 1.5 time) 0.5)))
+       ((< time (- rise 1.0)) (sky-color-clock--blend-colors "#c486b1" "#4d548a" (/ (- rise 1.0 time) 0.5)))
+       ((< time (- rise 0.5)) (sky-color-clock--blend-colors "#ee88a0" "#c486b1" (/ (- rise 0.5 time) 0.5)))
+       ((< time rise)         (sky-color-clock--blend-colors "#ff7d75" "#ee88a0" (/ (- rise time) 0.5)))
+       ((< time (+ rise 0.5)) (sky-color-clock--blend-colors "#f4eeef" "#ff7d75" (/ (- rise -0.5 time) 0.5)))
        ;; daytime colors -> gradient from #f4eeef to #5dc9f1
-       ((< time (- set 2.5))  (sky-color-clock--blend-colors "#5dc9f1" "#f4eeef" (/ (- set 2.5 time) daytime)))
-       ;; sunset colors -> #5dc9f1 #aeefdf #f1e17c #e86b00 #302878 #111111
-       ((< time (- set 2))    (sky-color-clock--blend-colors "#aeefdf" "#5dc9f1" (/ (- set 2 time) 0.5)))
-       ((< time (- set 1.5))  (sky-color-clock--blend-colors "#f1e17c" "#aeefdf" (/ (- set 1.5 time) 0.5)))
-       ((< time (- set 1))    (sky-color-clock--blend-colors "#e86b00" "#f1e17c" (/ (- set 1 time) 0.5)))
-       ((< time (- set 0.5))  (sky-color-clock--blend-colors "#302878" "#e86b00" (/ (- set 0.5 time) 0.5)))
-       ((< time set)          (sky-color-clock--blend-colors "#111111" "#302878" (/ (- set time) 0.5)))
+       ((< time (- set 1.5))  (sky-color-clock--blend-colors "#5dc9f1" "#f4eeef" (/ (- set 1.5 time) daytime)))
+       ;; sunset colors -> #5dc9f1 #aeefdf #f1e17c #e86b00 | #302878 #111111
+       ((< time (- set 1.0))  (sky-color-clock--blend-colors "#aeefdf" "#5dc9f1" (/ (- set 1.0 time) 0.5)))
+       ((< time (- set 0.5))  (sky-color-clock--blend-colors "#f1e17c" "#aeefdf" (/ (- set 0.5 time) 0.5)))
+       ((< time set)          (sky-color-clock--blend-colors "#e86b00" "#f1e17c" (/ (- set time) 0.5)))
+       ((< time (+ set 0.5))  (sky-color-clock--blend-colors "#302878" "#e86b00" (/ (- set -0.5 time) 0.5)))
+       ((< time (+ set 1.0))  (sky-color-clock--blend-colors "#111111" "#302878" (/ (- set -1.0 time) 0.5)))
        (t                     "#111111")))))
 
 (defun sky-color-clock--pick-fg-color (color)
