@@ -1,10 +1,12 @@
 * sky-color-clock.el
 
-A clock widget for modeline with sky colors and moonphase icon at that time.
+A clock widget for modeline with sky color at the time and moonphase icon (optional).
 
-その時間の空の色・月齢を反映したモードライン用時計
+その時刻の空の色と月齢を反映したモードライン用時計
 
 (This is a work in progress)
+
+Sunrise/sunset time and moonphase are estimated from your location (latitude).
 
 ** Screenshots
 
@@ -21,9 +23,12 @@ sky color samples
 Load and initialize sky-color-clock with your location's latitude.
 
 : (require 'sky-color-clock)
-: (sky-color-clock-initialize 35) ; tokyo
+: (sky-color-clock-initialize 35) ; tokyo, for example
 
-Then function =sky-color-clock= will return a propertized string.
+Then a propertized string can be obtained with =sky-color-clock=
+function, which you may put into =mode-line-format=.
+
+: (push '(:eval (sky-color-clock)) mode-line-format)
 
 ** Customization
 
