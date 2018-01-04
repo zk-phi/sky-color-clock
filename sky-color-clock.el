@@ -87,12 +87,12 @@ set (no black/white nights) in a day."
 (defconst sky-color-clock--newmoon 6.8576
   "A new moon (1970/01/08 05:35) in days since the epoch.")
 
-(defconst sky-color-clock--cycle 29.5306
+(defconst sky-color-clock--moonphase-cycle 29.5306
   "Eclipse (synodic month) cycle in days.")
 
 (defun sky-color--emoji-moonphase (time)
   (let* ((time-in-days (/ (float-time time) 60 60 24))
-         (phase (mod (- time-in-days sky-color-clock--newmoon) sky-color-clock--cycle)))
+         (phase (mod (- time-in-days sky-color-clock--newmoon) sky-color-clock--moonphase-cycle)))
     (cond ((<= phase  1.84) "🌕")
           ((<= phase  5.53) "🌖")
           ((<= phase  9.22) "🌗")
