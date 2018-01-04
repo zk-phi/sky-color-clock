@@ -72,8 +72,7 @@ set (no black/white nights) in a day."
 (defun sky-color-clock--pick-fg-color (color)
   (cl-destructuring-bind (h s l) (apply 'color-rgb-to-hsl (color-name-to-rgb color))
     (apply 'color-rgb-to-hex
-           (apply 'color-hsl-to-rgb
-                  (color-lighten-hsl h s l (if (> l 0.5) -60 50))))))
+           (color-hsl-to-rgb h s (+ l (if (> l 0.5) -0.5 0.5))))))
 
 (defun sky-color-clock-preview (year month day)
   (interactive (list (read-number "year: ") (read-number "month: ") (read-number "day: ")))
