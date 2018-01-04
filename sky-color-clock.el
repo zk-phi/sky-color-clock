@@ -71,8 +71,10 @@ set (no black/white nights) in a day."
        (t                   "#111111")))))
 
 (defun sky-color-clock--pick-fg-color (color)
-  (cl-destructuring-bind (r g b) (color-name-to-rgb color)
-    (if (> (+ r g b) 1.5) "#111111" "#eeeeee")))
+  (cl-destructuring-bind (h s l) (apply 'color-rgb-to-hsl (color-name-to-rgb color))
+    (apply 'color-rgb-to-hex
+           (apply 'color-hsl-to-rgb
+                  (color-lighten-hsl h s l (if (> l 0.5) -60 50))))))
 
 ;; ---- emoji moonphase
 
