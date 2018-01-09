@@ -4,17 +4,47 @@
 (defvar sky-color-clock-format "%d %H:%M")
 (defvar sky-color-clock-enable-moonphase-emoji t)
 
+;; TODO:
+;; - weather and temperature
+;;   - lower saturation and less contrast for cloudy days ?
+;;   - gradiant with temperature (like Solar weather app)
+;; - solar.el, lunar.el has more accurate algorithm
+
+;; ---- utilities
+
+(defun sky-color-clock--make-gradient (&rest color-stops)
+  "Make a function which takes a number and returns a color
+according to COLOR-STOPS, which is a sorted list of the
+form ((NUMBER . COLOR) ...)."
+  (unless color-stops
+    (error "No color-stops are specified."))
+  (let* ((first-color (pop color-stops))
+         (last-color first-color))
+    `(lambda (x)
+       (cond ((<= x ,(car first-color)) ,(cdr first-color))
+             ,@(mapcar (lambda (next-color)
+                         (prog1
+                             `((<= x ,(car next-color))
+                               (sky-color-clock--blend-colors
+                                ,(cdr last-color) ,(cdr next-color)
+                                (/ (- x ,(car last-color)) ,(- (car next-color) (car last-color)))))
+                           (setq last-color next-color)))
+                       color-stops)
+             (t ,(cdr last-color))))))
+
+(defun sky-color-clock--blend-colors (basecolor mixcolor &optional fraction)
+  "Blend to colors. FRACTION must be between 0.0 and 1.0,
+otherwise result may be broken."
+  (cl-destructuring-bind (r g b) (color-name-to-rgb basecolor)
+    (cl-destructuring-bind (rr gg bb) (color-name-to-rgb mixcolor)
+      (let* ((x (or fraction 0.5)) (y (- 1 x)))
+        (color-rgb-to-hex (+ (* r y) (* rr x)) (+ (* g y) (* gg x)) (+ (* b y) (* bb x)))))))
+
 ;; ---- sky color
 
-;; TODO: weather and temperature
-;; - lower saturation and less contrast for cloudy days ?
-;; - gradiant with temperature (like Solar weather app)
-
-;; simpler than solar.el, lunar.el
-
-(defvar sky-color-clock--daytime-length nil)
-(defvar sky-color-clock--sunrise nil)
-(defvar sky-color-clock--sunset nil)
+(defvar sky-color-clock--gradient nil
+  "A function which converts a float time (12:30 as 12.5, for
+example), to a color.")
 
 ;;;###autoload
 (defun sky-color-clock-initialize (latitude)
@@ -27,47 +57,33 @@
          (sunset-hour-angle             ; the "Sunrise equation"
           (* (acos (- (* (tan (degrees-to-radians latitude)) (tan sun-declination))))))
          (sunset-time-from-noon         ; rad -> hours
-          (* 24 (/ (radians-to-degrees sunset-hour-angle) 360))))
-    (setq sky-color-clock--daytime-length (* sunset-time-from-noon 2)
-          sky-color-clock--sunrise        (- 12 sunset-time-from-noon)
-          sky-color-clock--sunset         (+ 12 sunset-time-from-noon))))
+          (* 24 (/ (radians-to-degrees sunset-hour-angle) 360)))
+         (sunrise (- 12 sunset-time-from-noon))
+         (sunset (+ 12 sunset-time-from-noon)))
+    (setq sky-color-clock--gradient
+          (sky-color-clock--make-gradient
+           (cons (- sunrise 2.0) "#111111")
+           (cons (- sunrise 1.5) "#4d548a")
+           (cons (- sunrise 1.0) "#c486b1")
+           (cons (- sunrise 0.5) "#ee88a0")
+           (cons sunrise         "#ff7d75")
+           (cons (+ sunrise 0.5) "#f4eeef")
+           (cons (- sunset  1.5) "#5dc9f1")
+           (cons (- sunset  1.0) "#aeefdf")
+           (cons (- sunset  0.5) "#f1e17c")
+           (cons sunset          "#f86b10")
+           (cons (+ sunset  0.5) "#100028")
+           (cons (+ sunset  1.0) "#111111")))))
 
-(defun sky-color-clock--blend-colors (basecolor mixcolor &optional fraction)
-  "Blend to colors. FRACTION must be between 0.0 and 1.0,
-otherwise result may be broken."
-  (cl-destructuring-bind (r g b) (color-name-to-rgb basecolor)
-    (cl-destructuring-bind (rr gg bb) (color-name-to-rgb mixcolor)
-      (let* ((x (or fraction 0.5)) (y (- 1 x)))
-        (color-rgb-to-hex (+ (* r y) (* rr x)) (+ (* g y) (* gg x)) (+ (* b y) (* bb x)))))))
-
-;; TODO: Refactor me (and make me configurable)
 (defun sky-color-clock--pick-bg-color (time)
   "Corner cases are not supported for now: daytime-length must be
 larger than 5 hrs, sunrise time must be smaller than sunset
 time (unlike sunrise 23:00 sunset 19:00), sun must rise and
 set (no black/white nights) in a day."
+  (unless sky-color-clock--gradient
+    (error "sky-color-clock-initialize is not called."))
   (cl-destructuring-bind (sec min hour . _) (decode-time time)
-    (let ((time (+ (/ (+ (/ sec 60.0) min) 60.0) hour))
-          (rise sky-color-clock--sunrise)
-          (set sky-color-clock--sunset)
-          (daytime (- sky-color-clock--daytime-length 2)))
-      (cond
-       ;; sunrise colors -> #111111 #4d548a #c486b1 #ee88a0 #ff7d75 | #f4eeef
-       ((< time (- rise 2.0)) "#111111")
-       ((< time (- rise 1.5)) (sky-color-clock--blend-colors "#4d548a" "#111111" (/ (- rise 1.5 time) 0.5)))
-       ((< time (- rise 1.0)) (sky-color-clock--blend-colors "#c486b1" "#4d548a" (/ (- rise 1.0 time) 0.5)))
-       ((< time (- rise 0.5)) (sky-color-clock--blend-colors "#ee88a0" "#c486b1" (/ (- rise 0.5 time) 0.5)))
-       ((< time rise)         (sky-color-clock--blend-colors "#ff7d75" "#ee88a0" (/ (- rise time) 0.5)))
-       ((< time (+ rise 0.5)) (sky-color-clock--blend-colors "#f4eeef" "#ff7d75" (/ (- rise -0.5 time) 0.5)))
-       ;; daytime colors -> gradient from #f4eeef to #5dc9f1
-       ((< time (- set 1.5))  (sky-color-clock--blend-colors "#5dc9f1" "#f4eeef" (/ (- set 1.5 time) daytime)))
-       ;; sunset colors -> #5dc9f1 #aeefdf #f1e17c #f86b10 | #100028 #111111
-       ((< time (- set 1.0))  (sky-color-clock--blend-colors "#aeefdf" "#5dc9f1" (/ (- set 1.0 time) 0.5)))
-       ((< time (- set 0.5))  (sky-color-clock--blend-colors "#f1e17c" "#aeefdf" (/ (- set 0.5 time) 0.5)))
-       ((< time set)          (sky-color-clock--blend-colors "#f86b10" "#f1e17c" (/ (- set time) 0.5)))
-       ((< time (+ set 0.5))  (sky-color-clock--blend-colors "#100028" "#f86b10" (/ (- set -0.5 time) 0.5)))
-       ((< time (+ set 1.0))  (sky-color-clock--blend-colors "#111111" "#100028" (/ (- set -1.0 time) 0.5)))
-       (t                     "#111111")))))
+    (funcall sky-color-clock--gradient (+ (/ (+ (/ sec 60.0) min) 60.0) hour))))
 
 (defun sky-color-clock--pick-fg-color (color)
   (cl-destructuring-bind (h s l) (apply 'color-rgb-to-hsl (color-name-to-rgb color))
