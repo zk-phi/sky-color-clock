@@ -157,8 +157,8 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
 
 (defvar sky-color-clock--temperature-color-gradient
   (sky-color-clock--make-gradient
-   ;; -25             -5                  10                 25                 45
-   '(248 . "#0000ff") '(268 . "#8888ff") '(283 . "#ffffff") '(298 . "#ff8888") '(318 . "#ff0000")))
+   ;; -15             10                 35
+   '(258 . "#0000ff") '(283 . "#ffffff") '(308 . "#ff0000")))
 
 (defun sky-color-clock--temperature-indicator (basecolor &optional temperature)
   (if (null temperature) ""
