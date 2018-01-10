@@ -73,7 +73,7 @@ otherwise result may be broken."
   "Returns current temperature in kelvin from
 `sky-color-clock--openweathermap-cache', or nil."
   (when sky-color-clock--openweathermap-cache
-    (gethash 'temp_max (gethash 'main sky-color-clock--openweathermap-cache))))
+    (gethash 'temp (gethash 'main sky-color-clock--openweathermap-cache))))
 
 (defun sky-color-clock-start-openwethermap-client (api-key city-id &optional interval)
   "Initialize openwethermap client with API-KEY to fetch weather
