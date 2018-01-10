@@ -27,7 +27,7 @@ form ((NUMBER . COLOR) ...)."
                              `((<= x ,(car next-color))
                                (sky-color-clock--blend-colors
                                 ,(cdr last-color) ,(cdr next-color)
-                                (/ (- x ,(car last-color)) ,(- (car next-color) (car last-color)))))
+                                (/ (- x ,(car last-color)) ,(float (- (car next-color) (car last-color))))))
                            (setq last-color next-color)))
                        color-stops)
              (t ,(cdr last-color))))))
