@@ -81,11 +81,11 @@ daytime length must be longer than 2hrs, and sun must set before
 (defun sky-color-clock--pick-bg-color (time &optional cloudiness)
   "Pick a color from sky-color-clock--bg-color-gradient and
 saturate according to CLOUDINESS. CLOUDINESS can be a number from
-0.0 to 1.0."
+0 to 100."
   (unless sky-color-clock--bg-color-gradient
     (error "sky-color-clock-initialize is not called."))
   (cl-destructuring-bind (sec min hour . _) (decode-time time)
-    (let ((cloudiness (or cloudiness 0.00))
+    (let ((cloudiness (if cloudiness (/ cloudiness 100.0) 0.00))
           (color (funcall sky-color-clock--bg-color-gradient (+ (/ (+ (/ sec 60.0) min) 60.0) hour))))
       (cl-destructuring-bind (h s l) (apply 'color-rgb-to-hsl (color-name-to-rgb color))
         (apply 'color-rgb-to-hex
