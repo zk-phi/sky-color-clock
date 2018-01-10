@@ -1,8 +1,10 @@
 (require 'cl-lib)
 (require 'color)
+(require 'json)
 
 (defvar sky-color-clock-format "%d %H:%M")
 (defvar sky-color-clock-enable-moonphase-emoji t)
+(defvar sky-color-clock-enable-temperature-indicator t)
 
 ;; TODO:
 ;; - weather and temperature
@@ -66,6 +68,12 @@ otherwise result may be broken."
 `sky-color-clock--openweathermap-cache', or nil."
   (when sky-color-clock--openweathermap-cache
     (gethash 'all (gethash 'clouds sky-color-clock--openweathermap-cache))))
+
+(defun sky-color-clock--temperature ()
+  "Returns current temperature in kelvin from
+`sky-color-clock--openweathermap-cache', or nil."
+  (when sky-color-clock--openweathermap-cache
+    (gethash 'temp_max (gethash 'main sky-color-clock--openweathermap-cache))))
 
 (defun sky-color-clock-start-openwethermap-client (api-key city-id &optional interval)
   "Initialize openwethermap client with API-KEY to fetch weather
@@ -139,6 +147,18 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
     (dolist (min '(0 5 10 15 20 25 30 35 40 45 50 55))
       (insert (sky-color-clock (encode-time 0 min hour day month year)) "\n"))))
 
+;; ---- temperature
+
+(defvar sky-color-clock--temperature-color-gradient
+  (sky-color-clock--make-gradient '(243 . "#0000ff") '(283 . "#ffffff") '(323 . "#ff0000")))
+
+(defun sky-color-clock--temperature-indicator (basecolor)
+  (let* ((temp (sky-color-clock--temperature))
+         (color (and temp (sky-color-clock--blend-colors
+                           basecolor
+                           (funcall sky-color-clock--temperature-color-gradient temp)))))
+    (if temp (propertize " " 'face `(:background ,color)) "")))
+
 ;; ---- emoji moonphase
 
 (defconst sky-color-clock--newmoon 6.8576
@@ -172,6 +192,8 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
          (str (concat " " (format-time-string sky-color-clock-format time) " ")))
     (when sky-color-clock-enable-moonphase-emoji
       (setq str (concat " " (sky-color--emoji-moonphase time) str)))
-    (propertize str 'face `(:background ,bg :foreground ,fg))))
+    (setq str (propertize str 'face `(:background ,bg :foreground ,fg)))
+    (when sky-color-clock-enable-temperature-indicator
+      (setq str (concat str (sky-color-clock--temperature-indicator bg))))))
 
 (provide 'sky-color-clock)
