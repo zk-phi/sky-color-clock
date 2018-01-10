@@ -139,25 +139,31 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
     (apply 'color-rgb-to-hex
            (color-hsl-to-rgb h s (+ l (if (> l 0.5) -0.5 0.5))))))
 
-(defun sky-color-clock-preview (year month day)
-  (interactive (list (read-number "year: ") (read-number "month: ") (read-number "day: ")))
+(defun sky-color-clock-preview ()
+  (interactive)
   (switch-to-buffer (get-buffer-create "*sky-color-clock*"))
   (erase-buffer)
-  (dotimes (hour 23)
-    (dolist (min '(0 5 10 15 20 25 30 35 40 45 50 55))
-      (insert (sky-color-clock (encode-time 0 min hour day month year)) "\n"))))
+  (let ((sky-color-clock-enable-moonphase-emoji nil)
+        (sky-color-clock-format "%H:%M"))
+    (dotimes (hour 23)
+      (dolist (min '(0 5 10 15 20 25 30 35 40 45 50 55))
+        (dolist (cloudiness '(0 30 60 90))
+          (dolist (temperature '(273 283 293))
+            (insert (sky-color-clock (encode-time 0 min hour 1 7 2018) cloudiness temperature)
+                    " ")))
+        (insert "\n")))))
 
 ;; ---- temperature
 
 (defvar sky-color-clock--temperature-color-gradient
   (sky-color-clock--make-gradient '(243 . "#0000ff") '(283 . "#ffffff") '(323 . "#ff0000")))
 
-(defun sky-color-clock--temperature-indicator (basecolor)
-  (let* ((temp (sky-color-clock--temperature))
-         (color (and temp (sky-color-clock--blend-colors
-                           basecolor
-                           (funcall sky-color-clock--temperature-color-gradient temp)))))
-    (if temp (propertize " " 'face `(:background ,color)) "")))
+(defun sky-color-clock--temperature-indicator (basecolor &optional temperature)
+  (if (null temperature) ""
+    (let ((color (sky-color-clock--blend-colors
+                  basecolor
+                  (funcall sky-color-clock--temperature-color-gradient temperature))))
+      (propertize " " 'face `(:background ,color)))))
 
 ;; ---- emoji moonphase
 
@@ -182,18 +188,20 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
 
 ;; ---- the clock
 
-(defun sky-color-clock (&optional time)
+(defun sky-color-clock (&optional time cloudiness temperature)
   "Generate a fontified time string according to
 `sky-color-clock-format' and
 `sky-color-clock-enable-moonphase-emoji'."
   (let* ((time (or time (current-time)))
-         (bg (sky-color-clock--pick-bg-color time (sky-color-clock--cloudiness)))
+         (cloudiness (or cloudiness (sky-color-clock--cloudiness)))
+         (temperature (or temperature (sky-color-clock--temperature)))
+         (bg (sky-color-clock--pick-bg-color time cloudiness))
          (fg (sky-color-clock--pick-fg-color bg))
          (str (concat " " (format-time-string sky-color-clock-format time) " ")))
     (when sky-color-clock-enable-moonphase-emoji
       (setq str (concat " " (sky-color--emoji-moonphase time) str)))
     (setq str (propertize str 'face `(:background ,bg :foreground ,fg)))
     (when sky-color-clock-enable-temperature-indicator
-      (setq str (concat str (sky-color-clock--temperature-indicator bg))))))
+      (setq str (concat str (sky-color-clock--temperature-indicator bg temperature))))))
 
 (provide 'sky-color-clock)
