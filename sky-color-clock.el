@@ -10,7 +10,7 @@
 ;;   - gradiant with temperature (like Solar weather app)
 ;; - solar.el, lunar.el has more accurate algorithm
 
-;; ---- utilities
+;; ---- color utilities
 
 (defun sky-color-clock--make-gradient (&rest color-stops)
   "Make a function which takes a number and returns a color
@@ -42,7 +42,7 @@ otherwise result may be broken."
 
 ;; ---- sky color
 
-(defvar sky-color-clock--gradient nil
+(defvar sky-color-clock--bg-color-gradient nil
   "A function which converts a float time (12:30 as 12.5, for
 example), to a color.")
 
@@ -63,7 +63,7 @@ daytime length must be longer than 2hrs, and sun must set before
           (* 24 (/ (radians-to-degrees sunset-hour-angle) 360)))
          (sunrise (- 12 sunset-time-from-noon))
          (sunset (+ 12 sunset-time-from-noon)))
-    (setq sky-color-clock--gradient
+    (setq sky-color-clock--bg-color-gradient
           (sky-color-clock--make-gradient
            (cons (- sunrise 2.0)          "#111111")
            (cons (- sunrise 1.5)          "#4d548a")
@@ -79,14 +79,14 @@ daytime length must be longer than 2hrs, and sun must set before
            (cons (+ sunset  0.5)          "#111111")))))
 
 (defun sky-color-clock--pick-bg-color (time &optional cloudiness)
-  "Pick a color from sky-color-clock--gradient and saturate
-according to CLOUDINESS. CLOUDINESS can be a number from 0.0 to
-1.0."
-  (unless sky-color-clock--gradient
+  "Pick a color from sky-color-clock--bg-color-gradient and
+saturate according to CLOUDINESS. CLOUDINESS can be a number from
+0.0 to 1.0."
+  (unless sky-color-clock--bg-color-gradient
     (error "sky-color-clock-initialize is not called."))
   (cl-destructuring-bind (sec min hour . _) (decode-time time)
     (let ((cloudiness (or cloudiness 0.00))
-          (color (funcall sky-color-clock--gradient (+ (/ (+ (/ sec 60.0) min) 60.0) hour))))
+          (color (funcall sky-color-clock--bg-color-gradient (+ (/ (+ (/ sec 60.0) min) 60.0) hour))))
       (cl-destructuring-bind (h s l) (apply 'color-rgb-to-hsl (color-name-to-rgb color))
         (apply 'color-rgb-to-hex
                (color-hsl-to-rgb h (- s (* s cloudiness)) (- l (* l (/ cloudiness 2)))))))))
