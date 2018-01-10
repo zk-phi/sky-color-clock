@@ -3,7 +3,7 @@
 (require 'json)
 
 (defvar sky-color-clock-format "%d %H:%M")
-(defvar sky-color-clock-enable-moonphase-emoji t)
+(defvar sky-color-clock-enable-emoji-icon t)
 (defvar sky-color-clock-enable-temperature-indicator t)
 
 ;; TODO:
@@ -143,7 +143,7 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
   (interactive)
   (switch-to-buffer (get-buffer-create "*sky-color-clock*"))
   (erase-buffer)
-  (let ((sky-color-clock-enable-moonphase-emoji nil)
+  (let ((sky-color-clock-enable-emoji-icon nil)
         (sky-color-clock-format "%H:%M"))
     (dotimes (hour 23)
       (dolist (min '(0 5 10 15 20 25 30 35 40 45 50 55))
@@ -193,14 +193,14 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
 (defun sky-color-clock (&optional time cloudiness temperature)
   "Generate a fontified time string according to
 `sky-color-clock-format' and
-`sky-color-clock-enable-moonphase-emoji'."
+`sky-color-clock-enable-emoji-icon'."
   (let* ((time (or time (current-time)))
          (cloudiness (or cloudiness (sky-color-clock--cloudiness)))
          (temperature (or temperature (sky-color-clock--temperature)))
          (bg (sky-color-clock--pick-bg-color time cloudiness))
          (fg (sky-color-clock--pick-fg-color bg))
          (str (concat " " (format-time-string sky-color-clock-format time) " ")))
-    (when sky-color-clock-enable-moonphase-emoji
+    (when sky-color-clock-enable-emoji-icon
       (setq str (concat " " (sky-color--emoji-moonphase time) str)))
     (setq str (propertize str 'face `(:background ,bg :foreground ,fg)))
     (when sky-color-clock-enable-temperature-indicator
