@@ -40,6 +40,41 @@ otherwise result may be broken."
       (let* ((x (or fraction 0.5)) (y (- 1 x)))
         (color-rgb-to-hex (+ (* r y) (* rr x)) (+ (* g y) (* gg x)) (+ (* b y) (* bb x)))))))
 
+;; ---- openwethermap api
+
+(defvar sky-color-clock--openweathermap-api-key nil)
+(defvar sky-color-clock--openweathermap-city-id nil)
+(defvar sky-color-clock--openweathermap-cache   nil)
+
+(defun sky-color-clock--update-weather ()
+  "Fetch current weather via openwethermap API and update
+`sky-color-clock--openweathermap-cache'."
+  (url-retrieve
+   (format "http://api.openweathermap.org/data/2.5/weather?id=%s&appid=%s"
+           sky-color-clock--openweathermap-city-id
+           sky-color-clock--openweathermap-api-key)
+   (lambda (_)
+     (search-forward "\n\n" nil t)
+     (let ((json-object-type 'hash-table)
+           (json-key-type 'symbol)
+           (json-array-type 'list))
+       (setq sky-color-clock--openweathermap-cache
+             (json-read-from-string (buffer-substring (point) (point-max))))))))
+
+(defun sky-color-clock--cloudiness ()
+  "Get current cloudiness in percent from
+`sky-color-clock--openweathermap-cache', or nil."
+  (when sky-color-clock--openweathermap-cache
+    (gethash 'all (gethash 'clouds sky-color-clock--openweathermap-cache))))
+
+(defun sky-color-clock-start-openwethermap-client (api-key city-id &optional interval)
+  "Initialize openwethermap client with API-KEY to fetch weather
+of city specified with CITY-ID every INTERVAL minutes. INTERVAL
+defaults 30."
+  (setq sky-color-clock--openweathermap-api-key api-key
+        sky-color-clock--openweathermap-city-id city-id)
+  (run-with-timer 0 (* (or interval 30) 60) 'sky-color-clock--update-weather))
+
 ;; ---- sky color
 
 (defvar sky-color-clock--bg-color-gradient nil
@@ -132,7 +167,7 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
 `sky-color-clock-format' and
 `sky-color-clock-enable-moonphase-emoji'."
   (let* ((time (or time (current-time)))
-         (bg (sky-color-clock--pick-bg-color time))
+         (bg (sky-color-clock--pick-bg-color time (sky-color-clock--cloudiness)))
          (fg (sky-color-clock--pick-fg-color bg))
          (str (concat " " (format-time-string sky-color-clock-format time) " ")))
     (when sky-color-clock-enable-moonphase-emoji
