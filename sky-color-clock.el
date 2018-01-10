@@ -132,7 +132,7 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
           (color (funcall sky-color-clock--bg-color-gradient (+ (/ (+ (/ sec 60.0) min) 60.0) hour))))
       (cl-destructuring-bind (h s l) (apply 'color-rgb-to-hsl (color-name-to-rgb color))
         (apply 'color-rgb-to-hex
-               (color-hsl-to-rgb h (- s (* s cloudiness)) (min 0.95 (+ l (* 0.2 cloudiness)))))))))
+               (color-hsl-to-rgb h (- s (* s cloudiness 0.7)) (min 0.95 (+ l (* cloudiness 0.2)))))))))
 
 (defun sky-color-clock--pick-fg-color (color)
   (cl-destructuring-bind (h s l) (apply 'color-rgb-to-hsl (color-name-to-rgb color))
