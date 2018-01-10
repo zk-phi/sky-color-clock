@@ -175,7 +175,7 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
 (defconst sky-color-clock--moonphase-cycle 29.5306
   "Eclipse (synodic month) cycle in days.")
 
-(defun sky-color--emoji-moonphase (time)
+(defun sky-color-clock--emoji-moonphase (time)
   (let* ((time-in-days (/ (float-time time) 60 60 24))
          (phase (mod (- time-in-days sky-color-clock--newmoon) sky-color-clock--moonphase-cycle)))
     (cond ((<= phase  1.84) "🌑")
@@ -201,7 +201,7 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
          (fg (sky-color-clock--pick-fg-color bg))
          (str (concat " " (format-time-string sky-color-clock-format time) " ")))
     (when sky-color-clock-enable-emoji-icon
-      (setq str (concat " " (sky-color--emoji-moonphase time) str)))
+      (setq str (concat " " (sky-color-clock--emoji-moonphase time) str)))
     (setq str (propertize str 'face `(:background ,bg :foreground ,fg)))
     (when sky-color-clock-enable-temperature-indicator
       (setq str (concat str (sky-color-clock--temperature-indicator bg temperature))))))
