@@ -70,10 +70,16 @@ otherwise result may be broken."
     (gethash 'all (gethash 'clouds sky-color-clock--openweathermap-cache))))
 
 (defun sky-color-clock--temperature ()
-  "Returns current temperature in kelvin from
+  "Get current temperature in kelvin from
 `sky-color-clock--openweathermap-cache', or nil."
   (when sky-color-clock--openweathermap-cache
     (gethash 'temp (gethash 'main sky-color-clock--openweathermap-cache))))
+
+(defun sky-color-clock--weather ()
+  "Get current weather as a 'wether condition code' from
+`sky-color-clock--openweathermap-cache', or nil."
+  (when sky-color-clock--openweathermap-cache
+    (gethash 'id (car (gethash 'weather sky-color-clock--openweathermap-cache)))))
 
 (defun sky-color-clock-start-openwethermap-client (api-key city-id &optional interval)
   "Initialize openwethermap client with API-KEY to fetch weather
@@ -188,6 +194,12 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
           ((<= phase 27.68) "🌘")
           (t                "🌑"))))
 
+(defun sky-color-clock--emoji-icon (time)
+  (let ((weather (sky-color-clock--weather)))
+    (cond ((and weather (< weather 600)) "⛆")
+          ((and weather (< weather 700)) "❄")
+          (t (sky-color-clock--emoji-moonphase time)))))
+
 ;; ---- the clock
 
 (defun sky-color-clock (&optional time cloudiness temperature)
@@ -201,7 +213,7 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
          (fg (sky-color-clock--pick-fg-color bg))
          (str (concat " " (format-time-string sky-color-clock-format time) " ")))
     (when sky-color-clock-enable-emoji-icon
-      (setq str (concat " " (sky-color-clock--emoji-moonphase time) str)))
+      (setq str (concat " " (sky-color-clock--emoji-icon time) str)))
     (setq str (propertize str 'face `(:background ,bg :foreground ,fg)))
     (when sky-color-clock-enable-temperature-indicator
       (setq str (concat str (sky-color-clock--temperature-indicator bg temperature))))))
