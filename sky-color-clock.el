@@ -48,7 +48,10 @@ example), to a color.")
 
 ;;;###autoload
 (defun sky-color-clock-initialize (latitude)
-  "Initialize sky-color-clock with LATITUDE (in degrees)."
+  "Initialize sky-color-clock with LATITUDE (in degrees). Special
+cases are not considered for now: sun must rise after 02:00,
+daytime length must be longer than 2hrs, and sun must set before
+23:30."
   (let* ((day-of-year                   ; day of year (0-origin)
           (1- (time-to-day-in-year (current-time))))
          (sun-declination               ; declination of the sun
@@ -75,15 +78,18 @@ example), to a color.")
            (cons sunset                   "#100028")
            (cons (+ sunset  0.5)          "#111111")))))
 
-(defun sky-color-clock--pick-bg-color (time)
-  "Corner cases are not supported for now: daytime-length must be
-larger than 5 hrs, sunrise time must be smaller than sunset
-time (unlike sunrise 23:00 sunset 19:00), sun must rise and
-set (no black/white nights) in a day."
+(defun sky-color-clock--pick-bg-color (time &optional cloudiness)
+  "Pick a color from sky-color-clock--gradient and saturate
+according to CLOUDINESS. CLOUDINESS can be a number from 0.0 to
+1.0."
   (unless sky-color-clock--gradient
     (error "sky-color-clock-initialize is not called."))
   (cl-destructuring-bind (sec min hour . _) (decode-time time)
-    (funcall sky-color-clock--gradient (+ (/ (+ (/ sec 60.0) min) 60.0) hour))))
+    (let ((cloudiness (or cloudiness 0.00))
+          (color (funcall sky-color-clock--gradient (+ (/ (+ (/ sec 60.0) min) 60.0) hour))))
+      (cl-destructuring-bind (h s l) (apply 'color-rgb-to-hsl (color-name-to-rgb color))
+        (apply 'color-rgb-to-hex
+               (color-hsl-to-rgb h (- s (* s cloudiness)) (- l (* l (/ cloudiness 2)))))))))
 
 (defun sky-color-clock--pick-fg-color (color)
   (cl-destructuring-bind (h s l) (apply 'color-rgb-to-hsl (color-name-to-rgb color))
