@@ -6,11 +6,7 @@
 (defvar sky-color-clock-enable-emoji-icon t)
 (defvar sky-color-clock-enable-temperature-indicator t)
 
-;; TODO:
-;; - weather and temperature
-;;   - lower saturation and less contrast for cloudy days ?
-;;   - gradiant with temperature (like Solar weather app)
-;; - solar.el, lunar.el has more accurate algorithm
+;; NOTE: solar.el, lunar.el has more accurate algorithm
 
 ;; ---- color utilities
 
