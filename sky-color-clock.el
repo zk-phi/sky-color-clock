@@ -82,7 +82,7 @@ otherwise result may be broken."
   (when sky-color-clock--openweathermap-cache
     (gethash 'id (car (gethash 'weather sky-color-clock--openweathermap-cache)))))
 
-(defun sky-color-clock-start-openwethermap-client (api-key city-id &optional interval)
+(defun sky-color-clock-initialize-openwethermap-client (api-key city-id &optional interval)
   "Initialize openwethermap client with API-KEY to fetch weather
 of city specified with CITY-ID every INTERVAL minutes. INTERVAL
 defaults 30."
