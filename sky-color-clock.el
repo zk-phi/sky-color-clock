@@ -44,6 +44,7 @@ otherwise result may be broken."
 
 ;; ---- openwethermap api
 
+(defvar sky-color-clock--openweathermap-timer   nil)
 (defvar sky-color-clock--openweathermap-api-key nil)
 (defvar sky-color-clock--openweathermap-city-id nil)
 (defvar sky-color-clock--openweathermap-cache   nil)
@@ -85,9 +86,13 @@ otherwise result may be broken."
   "Initialize openwethermap client with API-KEY to fetch weather
 of city specified with CITY-ID every INTERVAL minutes. INTERVAL
 defaults 30."
+  (when sky-color-clock--openweathermap-timer
+    (cancel-timer sky-color-clock--openweathermap-timer)
+    (setq sky-color-clock--openweathermap-timer nil))
   (setq sky-color-clock--openweathermap-api-key api-key
-        sky-color-clock--openweathermap-city-id city-id)
-  (run-with-timer 0 (* (or interval 30) 60) 'sky-color-clock--update-weather))
+        sky-color-clock--openweathermap-city-id city-id
+        sky-color-clock--openweathermap-timer
+        (run-with-timer 0 (* (or interval 30) 60) 'sky-color-clock--update-weather)))
 
 ;; ---- sky color
 
