@@ -197,8 +197,8 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
 
 (defun sky-color-clock--emoji-icon (time)
   (let ((weather (sky-color-clock--weather)))
-    (cond ((and weather (< weather 600)) "⛆")
-          ((and weather (< weather 700)) "❄")
+    (cond ((and weather (< weather 600)) "💧")
+          ((and weather (< weather 700)) "❄️")
           (t (sky-color-clock--emoji-moonphase time)))))
 
 ;; ---- the clock
