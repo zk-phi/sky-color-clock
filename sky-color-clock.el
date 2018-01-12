@@ -171,8 +171,7 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
   (if (null temperature) ""
     (let ((color (sky-color-clock--blend-colors
                   basecolor
-                  (funcall sky-color-clock--temperature-color-gradient temperature)
-                  0.4)))
+                  (funcall sky-color-clock--temperature-color-gradient temperature))))
       (propertize " " 'face `(:background ,color)))))
 
 ;; ---- emoji moonphase
