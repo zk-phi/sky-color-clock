@@ -155,10 +155,10 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
     (dotimes (hour 23)
       (dolist (min '(0 5 10 15 20 25 30 35 40 45 50 55))
         (dolist (cloudiness '(0 30 60 90))
-          (dolist (temperature '(273 283 293))
+          (dolist (temperature '(278 288 298))
             (insert (sky-color-clock (encode-time 0 min hour 1 7 2018) cloudiness temperature)
                     " ")))
-        (insert "\n")))))
+        (insert "\n\n")))))
 
 ;; ---- temperature
 
