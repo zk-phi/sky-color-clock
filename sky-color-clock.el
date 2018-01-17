@@ -215,6 +215,7 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
       (setq str (concat " " (sky-color-clock--emoji-icon time) str)))
     (setq str (propertize str 'face `(:background ,bg :foreground ,fg)))
     (when sky-color-clock-enable-temperature-indicator
-      (setq str (concat str (sky-color-clock--temperature-indicator bg temperature))))))
+      (setq str (concat str (sky-color-clock--temperature-indicator bg temperature))))
+    str))
 
 (provide 'sky-color-clock)
