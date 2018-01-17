@@ -144,7 +144,7 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
 (defun sky-color-clock--pick-fg-color (color)
   (cl-destructuring-bind (h s l) (apply 'color-rgb-to-hsl (color-name-to-rgb color))
     (apply 'color-rgb-to-hex
-           (color-hsl-to-rgb h s (min 1 (max 0 (+ l (if (> l 0.5) -0.6 0.6))))))))
+           (color-hsl-to-rgb h s (min 1 (max 0 (+ l (if (> l 0.5) -0.55 0.55))))))))
 
 (defun sky-color-clock-preview ()
   (interactive)
