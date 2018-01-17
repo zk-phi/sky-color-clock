@@ -38,7 +38,7 @@ otherwise result may be broken."
       (let* ((x (or fraction 0.5)) (y (- 1 x)))
         (color-rgb-to-hex (+ (* r y) (* rr x)) (+ (* g y) (* gg x)) (+ (* b y) (* bb x)))))))
 
-;; ---- openwethermap api
+;; ---- openweathermap api
 
 (defvar sky-color-clock--openweathermap-timer   nil)
 (defvar sky-color-clock--openweathermap-api-key nil)
@@ -46,7 +46,7 @@ otherwise result may be broken."
 (defvar sky-color-clock--openweathermap-cache   nil)
 
 (defun sky-color-clock--update-weather ()
-  "Fetch current weather via openwethermap API and update
+  "Fetch current weather via openweathermap API and update
 `sky-color-clock--openweathermap-cache'."
   (url-retrieve
    (format "http://api.openweathermap.org/data/2.5/weather?id=%s&appid=%s"
@@ -73,13 +73,13 @@ otherwise result may be broken."
     (gethash 'temp (gethash 'main sky-color-clock--openweathermap-cache))))
 
 (defun sky-color-clock--weather ()
-  "Get current weather as a 'wether condition code' from
+  "Get current weather as a 'weather condition code' from
 `sky-color-clock--openweathermap-cache', or nil."
   (when sky-color-clock--openweathermap-cache
     (gethash 'id (car (gethash 'weather sky-color-clock--openweathermap-cache)))))
 
-(defun sky-color-clock-initialize-openwethermap-client (api-key city-id &optional interval)
-  "Initialize openwethermap client with API-KEY to fetch weather
+(defun sky-color-clock-initialize-openweathermap-client (api-key city-id &optional interval)
+  "Initialize openweathermap client with API-KEY to fetch weather
 of city specified with CITY-ID every INTERVAL minutes. INTERVAL
 defaults 30."
   (when sky-color-clock--openweathermap-timer
