@@ -1,10 +1,84 @@
+;;; sky-color-clock.el --- A clock widget for modelines with real-time sky color and moonphase/weather icon
+
+;; Copyright (C) 2018- zk_phi
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 2 of the License, or
+;; (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program; if not, write to the Free Software
+;; Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+
+;; Version: 1.0.0
+;; Author: zk_phi
+;; URL: https://github.com/zk-phi/sky-color-clock
+
+;;; Commentary:
+
+;; Put sky-color-clock.el in a "load-path"ed directory, and require
+;; this script
+;;
+;;   (require 'sky-color-clock.el)
+;;
+;; and initialize sky-color-clock with your location's latitude
+;;
+;;   (sky-color-clock-initialize 35) ; Tokyo, Japan
+;;
+;; Then function `sky-color-clock' returns a propertized string,
+;; which you may add to your `mode-line-format'.
+;;
+;;   (push '(:eval (sky-color-clock)) (default-value 'mode-line-format))
+;;
+;; You also may give sky-color-clock a Openweathermap API key
+;;
+;;   (sky-color-clock-initialize-openweathermap-client "API-Key" 1850144) ; Tokyo's City ID
+;;
+;; to enable weather icon (rain or snow) and to reflect cloudiness to
+;; the sky color.
+
+;;; Change Log:
+
+;; 1.0.0 Initial release
+
+;;; Code:
+
 (require 'cl-lib)
 (require 'color)
 (require 'json)
 
-(defvar sky-color-clock-format "%d %H:%M")
-(defvar sky-color-clock-enable-emoji-icon t)
-(defvar sky-color-clock-enable-temperature-indicator t)
+(defconst sky-color-clock-version "1.0.0")
+
+(defgroup sky-color-clock nil
+  "A clock widget for modelines with real-time sky color and
+moonphase/weather icon."
+  :group 'emacs)
+
+(defcustom sky-color-clock-format "%d %H:%M"
+  "Format string passed to `format-time-string'."
+  :group 'sky-color-clock)
+
+(defcustom sky-color-clock-enable-emoji-icon t
+  "When non-nil, an emoji icon is added to the left of the clock
+to indicate either rain, snow or moonphase otherwise. You also
+need to initialize openweathermap client with
+`sky-color-clock-initialize-openweathermap-client' to fetch
+weather informations."
+  :group 'sky-color-clock)
+
+(defcustom sky-color-clock-enable-temperature-indicator t
+  "When non-nil, an indicator is added to the right of the clock
+to indicate current temperature. You also need to initialize
+openweathermap client with
+`sky-color-clock-initialize-openweathermap-client' to fetch
+weather informations."
+  :group 'sky-color-clock)
 
 ;; NOTE: solar.el, lunar.el has more accurate algorithm
 
@@ -219,3 +293,5 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
     str))
 
 (provide 'sky-color-clock)
+
+;;; sky-color-clock.el ends here
