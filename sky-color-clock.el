@@ -62,7 +62,8 @@ moonphase/weather icon."
 
 (defcustom sky-color-clock-format "%d %H:%M"
   "Format string passed to `format-time-string'."
-  :group 'sky-color-clock)
+  :group 'sky-color-clock
+  :type 'string)
 
 (defcustom sky-color-clock-enable-emoji-icon t
   "When non-nil, an emoji icon is added to the left of the clock
@@ -70,7 +71,8 @@ to indicate either rain, snow or moonphase otherwise. You also
 need to initialize openweathermap client with
 `sky-color-clock-initialize-openweathermap-client' to fetch
 weather informations."
-  :group 'sky-color-clock)
+  :group 'sky-color-clock
+  :type 'boolean)
 
 (defcustom sky-color-clock-enable-temperature-indicator t
   "When non-nil, an indicator is added to the right of the clock
@@ -78,7 +80,8 @@ to indicate current temperature. You also need to initialize
 openweathermap client with
 `sky-color-clock-initialize-openweathermap-client' to fetch
 weather informations."
-  :group 'sky-color-clock)
+  :group 'sky-color-clock
+  :type 'boolean)
 
 ;; NOTE: solar.el, lunar.el has more accurate algorithm
 
