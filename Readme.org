@@ -1,28 +1,53 @@
 * sky-color-clock.el
 
-A clock widget for modelines with real-time sky color and moonphase/weather icon
+A clock widget for modelines with real-time sky color and
+moonphase/weather icon
 
 その時刻の空の色と月齢・天気を反映したモードライン用時計
 
 Sunrise/sunset time and moonphase are estimated from your location
 (latitude).
 
-Weather (either raining, snowing or not) and temperature information
-is fetched via Openweathermap API.
+Weather (either raining, snowing or not), cloudiness and temperature
+are (optionally) fetched via Openweathermap API.
 
 ** Screenshots
 
-modeline
+A cold morning.
 
-[[file:./modeline_sample.png]]
+[[file:./images/sample1_cold_morning.png]]
 
-sky color samples
+A sunny noon.
 
-[[file:./colors.png]]
+[[file:./images/sample2_sunny_noon.png]]
 
-** Usage
+A warm evening.
 
-Put sky-color-clock.el in a "load-path"ed directory, and require this
+[[file:./images/sample3_warm_evening.png]]
+
+Sunset.
+
+[[file:./images/sample4_sunset.png]]
+
+After sunset.
+
+[[file:./images/sample5_after_sunset.png]]
+
+A night.
+
+[[file:./images/sample6_night.png]]
+
+A warm rainy day with a few clouds.
+
+[[file:./images/sample7_warm_rainy_day.png]]
+
+A cold cloudy snowy day.
+
+[[file:./images/sample8_cold_cloudy_snowy_day.png]]
+
+** Installation
+
+Put sky-color-clock.el in a "load-path"ed directory, require this
 script
 
 : (require 'sky-color-clock.el)
@@ -40,11 +65,73 @@ You also may give sky-color-clock a Openweathermap API key
 
 : (sky-color-clock-initialize-openweathermap-client "API-Key" 1850144) ; Tokyo's City ID
 
-to enable weather icon (rain or snow) and to reflect cloudiness to the
-sky color.
+to enable weather icon (rain or snow), tmperature indicator and
+reflect cloudiness to the sky color.
 
-** Customization
+** Features / Customization
+*** Time Format
 
-- =sky-color-clock-format= ... String
-- =sky-color-clock-enable-emoji-icon= ... Boolean
-- =sky-color-clock-enable-temperature-indicator= ... Boolean
+You may change time format with =sky-color-clock-format=
+
+: (setq sky-color-clock-format "%d %H:%M")
+
+which is internally passed to =format-time-string= function.
+
+*** Background Colors
+
+Background color changes over the time, with respect to the sunset /
+sunrise time of the day at your location.
+
+Sunset / sunrise time are estimated from your location's latitude,
+which you passed to =sky-color-clock-initialize=.
+
+: (sky-color-clock-initialize 35) ; Tokyo, Japan
+
+Color samples:
+
+[[file:./images/colors.png]]
+
+*** Moonphase Icon
+
+Moonphase icon is displayed with an unicode emoji, if
+=sky-color-clock-enable-emoji-icon= is non-nil.
+
+: (setq sky-color-clock-enable-emoji-icon t)
+
+*** Openweathermap Integration
+
+When an openweathermap API key and a city ID is passed to
+sky-color-clock with
+=sky-color-clock-initialize-openweathermap-client=,
+
+: (sky-color-clock-initialize-openweathermap-client "API-key" 1850144)
+
+sky-color-clock fetches the current weather (at the specified city)
+every 30 minutes, and following features are enabled in addition.
+
+**** Cloudy Colors
+
+Reflect cloudiness (0%-100%) at the time, to the background sky color.
+
+[[file:./images/cloudiness.png]]
+
+**** Temperature Indicator
+
+Adds a temperature indicator to the right of the clock, which
+indicates temperature at the time with a color.
+
+0[C] - 15[C] - 30[C]
+
+[[file:./images/temperature.png]]
+
+You can disable this feature with
+=sky-color-clock-enable-temperature-indicator=.
+
+: (setq sky-color-clock-enable-temperature-indicator nil)
+
+**** Rain / Snow Icon
+
+A rain / snow emoji is displayed instead of the moonphase icon, if
+it's raining or snowing.
+
+You need to enable the moonphase icon feature to enable this feature.
