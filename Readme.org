@@ -1,12 +1,14 @@
 * sky-color-clock.el
 
-A clock widget for modeline with sky color at the time and moonphase icon (optional).
+A clock widget for modelines with real-time sky color and moonphase/weather icon
 
-その時刻の空の色と月齢を反映したモードライン用時計
+その時刻の空の色と月齢・天気を反映したモードライン用時計
 
-(This is a work in progress)
+Sunrise/sunset time and moonphase are estimated from your location
+(latitude).
 
-Sunrise/sunset time and moonphase are estimated from your location (latitude).
+Weather (either raining, snowing or not) and temperature information
+is fetched via Openweathermap API.
 
 ** Screenshots
 
@@ -20,17 +22,29 @@ sky color samples
 
 ** Usage
 
-Load and initialize sky-color-clock with your location's latitude.
+Put sky-color-clock.el in a "load-path"ed directory, and require this
+script
 
-: (require 'sky-color-clock)
-: (sky-color-clock-initialize 35) ; tokyo, for example
+: (require 'sky-color-clock.el)
 
-Then a propertized string can be obtained with =sky-color-clock=
-function, which you may put into =mode-line-format=.
+and initialize sky-color-clock with your location's latitude
 
-: (push '(:eval (sky-color-clock)) mode-line-format)
+: (sky-color-clock-initialize 35) ; Tokyo, Japan
+
+Then function =sky-color-clock= returns a propertized string, which
+you may add to your =mode-line-format=.
+
+: (push '(:eval (sky-color-clock)) (default-value 'mode-line-format))
+
+You also may give sky-color-clock a Openweathermap API key
+
+: (sky-color-clock-initialize-openweathermap-client "API-Key" 1850144) ; Tokyo's City ID
+
+to enable weather icon (rain or snow) and to reflect cloudiness to the
+sky color.
 
 ** Customization
 
 - =sky-color-clock-format= ... String
-- =sky-color-enable-moonphase-emoji= ... Boolean
+- =sky-color-clock-enable-emoji-icon= ... Boolean
+- =sky-color-clock-enable-temperature-indicator= ... Boolean

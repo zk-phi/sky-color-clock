@@ -22,8 +22,8 @@
 
 ;;; Commentary:
 
-;; Put sky-color-clock.el in a "load-path"ed directory, and require
-;; this script
+;; Put sky-color-clock.el in a "load-path"ed directory, require this
+;; script
 ;;
 ;;   (require 'sky-color-clock.el)
 ;;
@@ -40,8 +40,8 @@
 ;;
 ;;   (sky-color-clock-initialize-openweathermap-client "API-Key" 1850144) ; Tokyo's City ID
 ;;
-;; to enable weather icon (rain or snow) and to reflect cloudiness to
-;; the sky color.
+;; to enable weather icon (rain or snow), tmperature indicator and
+;; reflect cloudiness to the sky color.
 
 ;;; Change Log:
 
