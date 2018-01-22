@@ -25,7 +25,7 @@
 ;; Put sky-color-clock.el in a "load-path"ed directory, require this
 ;; script
 ;;
-;;   (require 'sky-color-clock.el)
+;;   (require 'sky-color-clock)
 ;;
 ;; and initialize sky-color-clock with your location's latitude
 ;;
