@@ -199,9 +199,9 @@ daytime length must be longer than 2hrs, and sun must set before
            (cons sunrise                  "#ff7d75")
            (cons (+ sunrise 0.5)          "#f4eeef")
            (cons (/ (+ sunset sunrise) 2) "#8bd7f5")
-           (cons (- sunset  1.5)          "#b3f2e6")
-           (cons (- sunset  1.0)          "#f3e693")
-           (cons (- sunset  0.5)          "#f86b10")
+           (cons (- sunset  1.2)          "#b3f2e6")
+           (cons (- sunset  0.8)          "#f3e693")
+           (cons (- sunset  0.4)          "#f86b10")
            (cons sunset                   "#100028")
            (cons (+ sunset  0.5)          "#111111")))))
 
