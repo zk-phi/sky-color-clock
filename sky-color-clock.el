@@ -270,26 +270,26 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
           ((<= phase 27.68) "🌘")
           (t                "🌑"))))
 
-(defun sky-color-clock--emoji-icon (time)
-  (let ((weather (sky-color-clock--weather)))
-    (cond ((and weather (< weather 600)) "💧")
-          ((and weather (< weather 700)) "❄️")
-          (t (sky-color-clock--emoji-moonphase time)))))
+(defun sky-color-clock--emoji-icon (time &optional weather)
+  (cond ((and weather (< weather 600)) "💧")
+        ((and weather (< weather 700)) "❄️")
+        (t (sky-color-clock--emoji-moonphase time))))
 
 ;; ---- the clock
 
-(defun sky-color-clock (&optional time cloudiness temperature)
+(defun sky-color-clock (&optional time cloudiness temperature weather)
   "Generate a fontified time string according to
 `sky-color-clock-format' and
 `sky-color-clock-enable-emoji-icon'."
   (let* ((time (or time (current-time)))
          (cloudiness (or cloudiness (sky-color-clock--cloudiness)))
          (temperature (or temperature (sky-color-clock--temperature)))
+         (weather (or weather (sky-color-clock--weather)))
          (bg (sky-color-clock--pick-bg-color time cloudiness))
          (fg (sky-color-clock--pick-fg-color bg))
          (str (concat " " (format-time-string sky-color-clock-format time) " ")))
     (when sky-color-clock-enable-emoji-icon
-      (setq str (concat " " (sky-color-clock--emoji-icon time) str)))
+      (setq str (concat " " (sky-color-clock--emoji-icon time weather) str)))
     (setq str (propertize str 'face `(:background ,bg :foreground ,fg)))
     (when sky-color-clock-enable-temperature-indicator
       (setq str (concat str (sky-color-clock--temperature-indicator bg temperature))))
