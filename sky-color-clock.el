@@ -74,6 +74,22 @@ weather informations."
   :group 'sky-color-clock
   :type 'boolean)
 
+(defcustom sky-color-clock-enable-xpm-icon nil
+  "When non-nil, an xpm icon is added to the left of the clock
+to indicate either rain, snow or moonphase otherwise. You also
+need to initialize openweathermap client with
+`sky-color-clock-initialize-openweathermap-client' to fetch
+weather informations."
+  :group 'sky-color-clock
+  :type 'boolean)
+
+(defcustom sky-color-clock--xpmimage-dir
+  (concat (file-name-directory (or load-file-name (buffer-file-name))) "xpmicons/")
+  "The path of the directory of xpm icons"
+  :group 'sky-color-clock
+  :type 'string
+  )
+
 (defcustom sky-color-clock-enable-temperature-indicator t
   "When non-nil, an indicator is added to the right of the clock
 to indicate current temperature. You also need to initialize
@@ -257,23 +273,53 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
 (defconst sky-color-clock--moonphase-cycle 29.5306
   "Eclipse (synodic month) cycle in days.")
 
-(defun sky-color-clock--emoji-moonphase (time)
+(defun sky-color-clock--decide-moonphase (time)
   (let* ((time-in-days (/ (float-time time) 60 60 24))
-         (phase (mod (- time-in-days sky-color-clock--newmoon) sky-color-clock--moonphase-cycle)))
-    (cond ((<= phase  1.84) "🌑")
-          ((<= phase  5.53) "🌒")
-          ((<= phase  9.22) "🌓")
-          ((<= phase 12.91) "🌔")
-          ((<= phase 16.61) "🌕")
-          ((<= phase 20.30) "🌖")
-          ((<= phase 23.99) "🌗")
-          ((<= phase 27.68) "🌘")
+         (phase (mod (- time-in-days sky-color-clock--newmoon)
+                     sky-color-clock--moonphase-cycle)))
+    (cond ((<= phase  1.84) "full_moon")
+          ((<= phase  5.53) "waning_gibbous_moon")
+          ((<= phase  9.22) "last_quarter_moon")
+          ((<= phase 12.91) "waning_crescent_moon")
+          ((<= phase 16.61) "new_moon")
+          ((<= phase 20.30) "waxing_gibbous_moon")
+          ((<= phase 23.99) "first_quarter_moon")
+          ((<= phase 27.68) "waxing_crescent_moon")
+          (t                "full_moon"))))
+
+(defun sky-color-clock--emoji-moonphase (time)
+  (let ((phase (sky-color-clock--decide-moonphase time)))
+    (cond ((eq phase "full_moon") "🌑")
+          ((eq phase "waning_gibbous_moon") "🌒")
+          ((eq phase "last-quter-moon") "🌓")
+          ((eq phase "waning_crescent_moon") "🌔")
+          ((eq phase "new_moon") "🌕")
+          ((eq phase "waxing_gibbous_moon") "🌖")
+          ((eq phase "first_quarter_moon") "🌗")
+          ((eq phase "waxing_crescent_moon") "🌘")
           (t                "🌑"))))
 
 (defun sky-color-clock--emoji-icon (time &optional weather)
   (cond ((and weather (< weather 600)) "💧")
         ((and weather (< weather 700)) "❄️")
         (t (sky-color-clock--emoji-moonphase time))))
+
+;; ---- xpm moonphase
+
+(defun sky-color-clock--xpm-icon (time &optional weather)
+  (let ((dir sky-color-clock--xpmimage-dir)
+        (rain  "droplet")
+        (snow  "snowflake")
+        (moonphase (sky-color-clock--decide-moonphase time)))
+    (propertize "-" 'display
+                (create-image
+                 (concat dir
+                         (cond ((and weather (< weather 600)) rain)
+                               ((and weather (< weather 700)) snow)
+                               (t moonphase))
+                         ".xpm")
+                 'xpm nil :ascent 'center)
+                )))
 
 ;; ---- the clock
 
@@ -290,6 +336,8 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
          (str (concat " " (format-time-string sky-color-clock-format time) " ")))
     (when sky-color-clock-enable-emoji-icon
       (setq str (concat " " (sky-color-clock--emoji-icon time weather) str)))
+    (when sky-color-clock-enable-xpm-icon
+      (setq str (concat " " (sky-color-clock--xpm-icon time weather) str)))
     (setq str (propertize str 'face `(:background ,bg :foreground ,fg)))
     (when sky-color-clock-enable-temperature-indicator
       (setq str (concat str (sky-color-clock--temperature-indicator bg temperature))))
