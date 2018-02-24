@@ -1,0 +1,25 @@
+/* XPM */
+static char * roundb_xpm[] = {
+/* width height ncolors cpp [x_hot y_hot] */
+"13 13 5 2 7 7",
+/* colors */
+"  s none       m none  c none",
+". s topShadowColor m white c lightblue",
+"X s iconColor1 m black c black",
+"o s bottomShadowColor m black c #646464646464",
+"O s selectColor m white c red",
+/* pixels */
+"                          ",
+"          . . .           ",
+"      . . X X X o o       ",
+"    . X X X X X X X o     ",
+"    . X X X X X X X o     ",
+"  . X X X X O X X X X o   ",
+"  . X X X O O O X X X o   ",
+"  . X X X X O X X X X o   ",
+"    . X X X X X X X o     ",
+"    . X X X X X X X o     ",
+"      o o X X X o o       ",
+"          o o o           ",
+"                          "
+}; 
