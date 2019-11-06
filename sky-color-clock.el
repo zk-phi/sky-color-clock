@@ -135,7 +135,8 @@ otherwise result may be broken."
            (json-key-type 'symbol)
            (json-array-type 'list))
        (setq sky-color-clock--openweathermap-cache
-             (json-read-from-string (buffer-substring (point) (point-max))))))))
+             (json-read-from-string (buffer-substring (point) (point-max)))))
+     (url-mark-buffer-as-dead (current-buffer)))))
 
 (defun sky-color-clock--cloudiness ()
   "Get current cloudiness in percent from
