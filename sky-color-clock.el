@@ -52,6 +52,7 @@
 (require 'cl-lib)
 (require 'color)
 (require 'json)
+(require 'url)
 
 (defconst sky-color-clock-version "1.0.0")
 
