@@ -75,6 +75,12 @@ weather informations."
   :group 'sky-color-clock
   :type 'boolean)
 
+(defcustom sky-color-clock-enable-sun-emoji nil
+  "When non-nil and `sky-color-clock-enable-emoji-icon' is
+enabled, use the sun emoji to indicate it's daytime."
+  :group 'sky-color-clock
+  :type 'boolean)
+
 (defcustom sky-color-clock-enable-temperature-indicator t
   "When non-nil, an indicator is added to the right of the clock
 to indicate current temperature. You also need to initialize
@@ -175,6 +181,12 @@ defaults 30."
   "A function which converts a float time (12:30 as 12.5, for
 example), to a color.")
 
+(defvar sky-color-clock--sunrise nil
+  "Sunrise time from noon")
+
+(defvar sky-color-clock--sunset nil
+  "Sunset tiem from noon")
+
 ;;;###autoload
 (defun sky-color-clock-initialize (latitude)
   "Initialize sky-color-clock with LATITUDE (in degrees). Special
@@ -192,7 +204,9 @@ daytime length must be longer than 2hrs, and sun must set before
           (* 24 (/ (radians-to-degrees sunset-hour-angle) 360)))
          (sunrise (- 12 sunset-time-from-noon))
          (sunset (+ 12 sunset-time-from-noon)))
-    (setq sky-color-clock--bg-color-gradient
+    (setq sky-color-clock--sunrise sunrise
+          sky-color-clock--sunset  sunset
+          sky-color-clock--bg-color-gradient
           (sky-color-clock--make-gradient
            (cons (- sunrise 2.0)          "#111111")
            (cons (- sunrise 1.5)          "#4d548a")
@@ -272,10 +286,19 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
           ((<= phase 27.68) "🌘")
           (t                "🌑"))))
 
+(defun sky-color-clock--emoji-sun-or-moonphase (time)
+  (if (not sky-color-clock-enable-sun-emoji)
+      (sky-color-clock--emoji-moonphase time)
+    (cl-destructuring-bind (sec min hour . _) (decode-time time)
+      (let ((time-in-hours (+ (/ (+ (/ sec 60.0) min) 60.0) hour)))
+        (if (< sky-color-clock--sunrise time-in-hours sky-color-clock--sunset)
+            "☀️"
+          (sky-color-clock--emoji-moonphase time))))))
+
 (defun sky-color-clock--emoji-icon (time &optional weather)
   (cond ((and weather (< weather 600)) "💧")
         ((and weather (< weather 700)) "❄️")
-        (t (sky-color-clock--emoji-moonphase time))))
+        (t (sky-color-clock--emoji-sun-or-moonphase time))))
 
 ;; ---- the clock
 
