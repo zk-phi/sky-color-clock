@@ -16,7 +16,7 @@
 ;; along with this program; if not, write to the Free Software
 ;; Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-;; Version: 1.0.0
+;; Version: 1.0.1
 ;; Author: zk_phi
 ;; URL: https://github.com/zk-phi/sky-color-clock
 
@@ -46,6 +46,7 @@
 ;;; Change Log:
 
 ;; 1.0.0 Initial release
+;; 1.0.1 Add option sky-color-clock-enable-sun-emoji
 
 ;;; Code:
 
@@ -54,7 +55,7 @@
 (require 'json)
 (require 'url)
 
-(defconst sky-color-clock-version "1.0.0")
+(defconst sky-color-clock-version "1.0.1")
 
 (defgroup sky-color-clock nil
   "A clock widget for modelines with real-time sky color and
