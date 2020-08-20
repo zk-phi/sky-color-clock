@@ -46,7 +46,7 @@
 ;;; Change Log:
 
 ;; 1.0.0 Initial release
-;; 1.0.1 Add option sky-color-clock-enable-sun-emoji
+;; 1.0.1 Add option sky-color-clock-enable-daytime-emoji
 
 ;;; Code:
 
@@ -76,9 +76,9 @@ weather informations."
   :group 'sky-color-clock
   :type 'boolean)
 
-(defcustom sky-color-clock-enable-sun-emoji nil
+(defcustom sky-color-clock-enable-daytime-emoji nil
   "When non-nil and `sky-color-clock-enable-emoji-icon' is
-enabled, use the sun emoji to indicate it's daytime."
+enabled, use sun (or cloud) emoji to indicate it's daytime."
   :group 'sky-color-clock
   :type 'boolean)
 
@@ -287,19 +287,22 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
           ((<= phase 27.68) "🌘")
           (t                "🌑"))))
 
-(defun sky-color-clock--emoji-sun-or-moonphase (time)
-  (if (not sky-color-clock-enable-sun-emoji)
-      (sky-color-clock--emoji-moonphase time)
-    (cl-destructuring-bind (sec min hour . _) (decode-time time)
-      (let ((time-in-hours (+ (/ (+ (/ sec 60.0) min) 60.0) hour)))
-        (if (< sky-color-clock--sunrise time-in-hours sky-color-clock--sunset)
-            "☀️"
-          (sky-color-clock--emoji-moonphase time))))))
+(defun sky-color-clock--emoji-daytime (time &optional cloudiness)
+  (cl-destructuring-bind (sec min hour . _) (decode-time time)
+    (let ((time-in-hours (+ (/ (+ (/ sec 60.0) min) 60.0) hour)))
+      (cond ((< sky-color-clock--sunset time-in-hours) nil)
+            ((< time-in-hours sky-color-clock--sunrise) nil)
+            ((and cloudiness (>= cloudiness 50)) "☁️")
+            ((< time-in-hours (+ sky-color-clock--sunrise 0.5)) "🌅")
+            ((< time-in-hours (- sky-color-clock--sunset 0.5)) "☀️")
+            (t "🌇")))))
 
-(defun sky-color-clock--emoji-icon (time &optional weather)
+(defun sky-color-clock--emoji-icon (time &optional cloudiness weather)
   (cond ((and weather (< weather 600)) "💧")
         ((and weather (< weather 700)) "❄️")
-        (t (sky-color-clock--emoji-sun-or-moonphase time))))
+        (t (or (and sky-color-clock-enable-daytime-emoji
+                    (sky-color-clock--emoji-daytime time cloudiness))
+               (sky-color-clock--emoji-moonphase time)))))
 
 ;; ---- the clock
 
@@ -315,7 +318,7 @@ saturate according to CLOUDINESS. CLOUDINESS can be a number from
          (fg (sky-color-clock--pick-fg-color bg))
          (str (concat " " (format-time-string sky-color-clock-format time) " ")))
     (when sky-color-clock-enable-emoji-icon
-      (setq str (concat " " (sky-color-clock--emoji-icon time weather) str)))
+      (setq str (concat " " (sky-color-clock--emoji-icon time cloudiness weather) str)))
     (setq str (propertize str 'face `(:background ,bg :foreground ,fg)))
     (when sky-color-clock-enable-temperature-indicator
       (setq str (concat str (sky-color-clock--temperature-indicator bg temperature))))
