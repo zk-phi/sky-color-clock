@@ -16,7 +16,7 @@
 ;; along with this program; if not, write to the Free Software
 ;; Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-;; Version: 1.0.1
+;; Version: 1.0.2
 ;; Author: zk_phi
 ;; URL: https://github.com/zk-phi/sky-color-clock
 
@@ -47,13 +47,15 @@
 
 ;; 1.0.0 Initial release
 ;; 1.0.1 Add option sky-color-clock-enable-daytime-emoji
+;; 1.0.2 Use json-parse-string on Emacs >=27.1 for performance
 
 ;;; Code:
 
 (require 'cl-lib)
 (require 'color)
-(require 'json)
 (require 'url)
+(unless (fboundp 'json-parse-string)
+  (require 'json))
 
 (defconst sky-color-clock-version "1.0.1")
 
@@ -130,6 +132,14 @@ otherwise result may be broken."
 (defvar sky-color-clock--openweathermap-city-id nil)
 (defvar sky-color-clock--openweathermap-cache   nil)
 
+(defun sky-color-clock--parse-json (str)
+  (if (fboundp 'json-parse-string)      ; Emacs >=27.1
+      (json-parse-string str)
+    (let ((json-object-type 'hash-table)
+          (json-key-type 'string)
+          (json-array-type 'vector))
+      (json-read-from-string str))))
+
 (defun sky-color-clock--update-weather ()
   "Fetch current weather via openweathermap API and update
 `sky-color-clock--openweathermap-cache'."
@@ -139,30 +149,27 @@ otherwise result may be broken."
            sky-color-clock--openweathermap-api-key)
    (lambda (_)
      (search-forward "\n\n" nil t)
-     (let ((json-object-type 'hash-table)
-           (json-key-type 'symbol)
-           (json-array-type 'list))
-       (setq sky-color-clock--openweathermap-cache
-             (json-read-from-string (buffer-substring (point) (point-max)))))
+     (setq sky-color-clock--openweathermap-cache
+           (sky-color-clock--parse-json (buffer-substring (point) (point-max))))
      (url-mark-buffer-as-dead (current-buffer)))))
 
 (defun sky-color-clock--cloudiness ()
   "Get current cloudiness in percent from
 `sky-color-clock--openweathermap-cache', or nil."
   (when sky-color-clock--openweathermap-cache
-    (gethash 'all (gethash 'clouds sky-color-clock--openweathermap-cache))))
+    (gethash "all" (gethash "clouds" sky-color-clock--openweathermap-cache))))
 
 (defun sky-color-clock--temperature ()
   "Get current temperature in kelvin from
 `sky-color-clock--openweathermap-cache', or nil."
   (when sky-color-clock--openweathermap-cache
-    (gethash 'temp (gethash 'main sky-color-clock--openweathermap-cache))))
+    (gethash "temp" (gethash "main" sky-color-clock--openweathermap-cache))))
 
 (defun sky-color-clock--weather ()
   "Get current weather as a 'weather condition code' from
 `sky-color-clock--openweathermap-cache', or nil."
   (when sky-color-clock--openweathermap-cache
-    (gethash 'id (car (gethash 'weather sky-color-clock--openweathermap-cache)))))
+    (gethash "id" (aref (gethash "weather" sky-color-clock--openweathermap-cache) 0))))
 
 (defun sky-color-clock-initialize-openweathermap-client (api-key city-id &optional interval)
   "Initialize openweathermap client with API-KEY to fetch weather
