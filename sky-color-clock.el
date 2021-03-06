@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t -*-
 ;;; sky-color-clock.el --- A clock widget for modelines with real-time sky color and moonphase/weather icon
 
 ;; Copyright (C) 2018- zk_phi
